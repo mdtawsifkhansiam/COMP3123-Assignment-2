@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:5000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    build: ./backend
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/employee_db
+      - JWT_SECRET=your-super-secret-jwt-key-here-123456
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - uploads:/app/src/uploads
+
+  mongodb:
+    image: mongo:5
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - '8081:8081'
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=password
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
+  uploads:
